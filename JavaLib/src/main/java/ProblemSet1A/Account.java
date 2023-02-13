@@ -53,7 +53,7 @@ public class Account {
 	}
 
 	public double getMonthlyInterest() {
-		return this.balance * this.getMonthlyInterestRate() / 100;
+		return this.balance * getMonthlyInterestRate() / 100;
 	}
 
 	public void withdraw(double amount) {
