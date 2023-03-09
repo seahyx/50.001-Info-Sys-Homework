@@ -19,6 +19,7 @@ public class PianoMachine {
 	private int currentOctave = 0;
 
 	private boolean isRecording = false;
+	private boolean isPlaying = false;
 	private String recording;
 
 	/**
@@ -41,12 +42,12 @@ public class PianoMachine {
 	 * @param rawPitch Pitch of the note.
 	 */
 	public void beginNote(Pitch rawPitch) {
-		rawPitch.transpose(12 * currentOctave);
+		final Pitch finalPitch = rawPitch.transpose(12 * currentOctave);
 		for (Pitch p: playingNotes) {
-			if (p == rawPitch) return; // Same note already playing, ignore.
+			if (p.equals(finalPitch)) return; // Same note already playing, ignore.
 		}
-		playingNotes.add(rawPitch);
-    	midi.beginNote(rawPitch.toMidiFrequency(), currentInstrument);
+		playingNotes.add(finalPitch);
+    	midi.beginNote(finalPitch.toMidiFrequency(), currentInstrument);
     }
 
 	/**
@@ -54,14 +55,15 @@ public class PianoMachine {
 	 * @param rawPitch Pitch of the note.
 	 */
     public void endNote(final Pitch rawPitch) {
-	    rawPitch.transpose(12 * currentOctave);
+	    final Pitch finalPitch = rawPitch.transpose(12 * currentOctave);
 	    final boolean b = playingNotes.removeIf(new Predicate<Pitch>() {
 		    @Override
 		    public boolean test(Pitch p) {
-			    return p == rawPitch;
+			    return p.equals(finalPitch);
 		    }
 	    });
-	    midi.endNote(rawPitch.toMidiFrequency(), currentInstrument);
+		if (!b) return;
+	    midi.endNote(finalPitch.toMidiFrequency(), currentInstrument);
     }
 
 	/**
@@ -91,6 +93,7 @@ public class PianoMachine {
 	 */
 	public boolean toggleRecording() {
 		if (!isRecording) {
+			if (isPlaying) return false;
 			midi.clearHistory();
 			isRecording = true;
 		}
@@ -106,6 +109,8 @@ public class PianoMachine {
 	 * Plays back recording.
 	 */
     public void playback() {
+		if (isRecording) return;
+	    isPlaying = true;
 		String[] noteSeq = recording.split(" ");
 		for (String event: noteSeq) {
 			String[] params = event.substring(event.indexOf("(")+1, event.indexOf(")")).split(",");
@@ -121,6 +126,7 @@ public class PianoMachine {
 					break;
 			}
 		}
+		isPlaying = false;
     }
 
 }
