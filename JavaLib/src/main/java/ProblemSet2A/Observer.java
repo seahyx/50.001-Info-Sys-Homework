@@ -36,7 +36,7 @@ interface Subject{
 }
 //-------------------------------------------------------
 
-//TODO: modify AirPollutionAlert to implement interface Subject, under Observer design pattern
+
 class AirPollutionAlert implements Subject {
 	private double airPollutionIndex;
 

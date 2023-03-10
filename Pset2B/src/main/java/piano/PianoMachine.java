@@ -110,6 +110,7 @@ public class PianoMachine {
 	 */
     public void playback() {
 		if (isRecording) return;
+
 	    isPlaying = true;
 		String[] noteSeq = recording.split(" ");
 		for (String event: noteSeq) {
